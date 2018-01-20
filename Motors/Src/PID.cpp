@@ -283,6 +283,11 @@ float PID::compute(int now) //now is time in us
     return ((controllerOutput_ * outSpan_) + outMin_);
 }
 
+float PID::getPreviousTime() // returns last compute time
+{
+	return(prevTime_);
+}
+
 float PID::getInMin()
 {
 

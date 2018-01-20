@@ -156,6 +156,7 @@ public:
     float getIParam();
     float getDParam();
     float getSetValue();
+    float getPreviousTime(); // returns last compute time
     
     //Added by dj to set separately P,I,D
     void setPTuning(float Kc);

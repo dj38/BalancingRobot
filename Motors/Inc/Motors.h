@@ -14,7 +14,7 @@
 class Motors {
 public:
     typedef struct {
-        float x,y,theta; // theta is angle vs y axis. Initial angle is 0 (robot oriented as y axis)
+        float x,y,azimut; // azimut is angle vs y axis. Initial angle is 0 (robot oriented as y axis)
     } position_t;
 
 	Motors(Motor * leftMotor,Motor * rightMotor,Encoder * leftEnc,Encoder * rightEnc);

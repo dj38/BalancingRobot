@@ -45,9 +45,10 @@ private:
     bool  checkRobotIsVertical();   // returns true if robot "standing state" (standing or horizontal) has changed
     PID   m_pidAngle;           // PID object to handle Angle regulation
     PID   m_pidSpeed;           // PID object to handle Speed regulation
-//    PID   m_pidTheta;           // PID object to handle Theta regulation (robot direction)
-    PID_t m_speed;              // PID variables for angle and speed
-    PID_t m_angle;              // PID variables for angle and speed
+//    PID   m_pidAzimut;           // PID object to handle azimut regulation (robot direction)
+    PID_t m_speed;              // PID variables for speed
+    PID_t m_angle;              // PID variables for angle
+    PID_t m_azimut;             // PID variables for azimut
     float m_angleOffset;        // robot angle when it is vertical (~steady state)
     float m_controlAngleLimit;  // Set the maximum tilting angle of the robot
     float m_controlSpeedLimit;  // Set the maximum speed limit

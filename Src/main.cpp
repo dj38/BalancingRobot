@@ -308,7 +308,7 @@ int main(void)
 			serialHC06 << "target/meas angle : " << regul.getTargetAngle() << "/" << regul.getMeasuredAngle() << "\n";
 			serialHC06 << "target/meas speed : " << regul.getTargetSpeed() << "/" << regul.getMeasuredSpeed() << "\n";
 			Motors::position_t position=motors.getPosition();
-			serialHC06 << "Position (x/y/theta°) : " << position.x << "/" << position.y << "/" << 180.0/3.141592654*position.theta << "\n";
+			serialHC06 << "Position (x/y/azimut°) : " << position.x << "/" << position.y << "/" << 180.0/3.141592654*position.azimut << "\n";
 
 			/*
             mpu.m_StatLogList.print(&pc,true);

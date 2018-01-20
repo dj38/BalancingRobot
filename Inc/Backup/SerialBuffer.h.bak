@@ -1,0 +1,39 @@
+/*
+ * SerialBuffer.h
+ *
+ *  Created on: 1 avr. 2017
+ *      Author: joel
+ */
+#ifndef SERIALBUFFER_H_
+#define SERIALBUFFER_H_
+
+#include "main.h"
+#include <queue>
+#include <string>
+#include "stm32f4xx_hal.h"
+
+class SerialBuffer {
+public:
+	SerialBuffer(UART_HandleTypeDef *huart,std::string name="");
+	void write(uint8_t symbol);
+	void write(std::string const& str);
+	virtual ~SerialBuffer();
+	void TxCpltCallback();
+	void RxCpltCallback();
+	std::string *rxBuffer();
+
+private:
+	UART_HandleTypeDef *m_huart;
+	std::queue<uint8_t> m_pendingTxBuffer;
+	std::string m_rxBuffer;
+	std::string m_name;
+	bool m_ongoingTransmit;
+	uint8_t m_halTxBuffer[1];
+	uint8_t m_halRxBuffer[1];
+	void transmit();
+};
+
+SerialBuffer& operator<<(SerialBuffer & serial,std::string const& str);
+SerialBuffer& operator<<(SerialBuffer & serial,float const& flt);
+
+#endif /* SERIALBUFFER_H_ */

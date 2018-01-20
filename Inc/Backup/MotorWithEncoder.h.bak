@@ -1,0 +1,47 @@
+/*
+ * MotorWithEncoder.h
+ *
+ *  Created on: 18 avr. 2017
+ *      Author: joel
+ */
+
+#ifndef MOTORWITHENCODER_H_
+#define MOTORWITHENCODER_H_
+
+#define WHEEL_DIAMETER 0.09 // wheel diameter in meters
+
+#include "tim.h"
+#include "Motor.h"
+
+class MotorWithEncoder : public Motor {
+public:
+	MotorWithEncoder(TIM_HandleTypeDef * htimEncoder,
+		TIM_HandleTypeDef *htimPWM, uint32_t channel, GPIO_TypeDef *dirPort, const uint16_t dirPin, const int32_t freq=1000,const motorDirection_e direction=MOTOR_FORWARD);
+	virtual ~MotorWithEncoder();
+    /** Calculates new position based on ...
+         * @param now is current time in us
+     */
+    void pushNewEncoder(int now); //now is time in us
+    /** Reset speed
+     */
+    void encoderReset();
+    /**      */
+    float getSpeed();
+
+private:
+	float m_speed;
+
+	TIM_HandleTypeDef *m_htimEncoder;
+    int32_t m_lastEncoder,m_encoder; //previous and actual encoder values
+    uint32_t m_lastEncoderUpdate,m_now; // in us, used to evaluate calculation interval
+    uint8_t m_nbUpdate; // number of update since last reset (clamped to 2)
+
+
+    static const float wheelDiameter;
+    static const float pi;
+    static const float pulsesPerRev;
+    static const float wheelPerimeter;
+    static const float distPerPulse;
+};
+
+#endif /* MOTORWITHENCODER_H_ */

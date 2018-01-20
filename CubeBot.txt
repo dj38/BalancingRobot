@@ -1,0 +1,80 @@
+Configuration	CubeBot
+STM32CubeMX 	4.22.1
+Date	10/05/2017
+MCU	STM32F411RETx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+I2C1	I2C	I2C1_SCL	PB8
+I2C1	I2C	I2C1_SDA	PB9
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+TIM1	Internal Clock	TIM1_VS_ClockSourceINT	VP_TIM1_VS_ClockSourceINT
+TIM2	Encoder Mode	TIM2_CH1	PA15
+TIM2	Encoder Mode	TIM2_CH2	PB3
+TIM3	Internal Clock	TIM3_VS_ClockSourceINT	VP_TIM3_VS_ClockSourceINT
+TIM3	PWM Generation CH1	TIM3_CH1	PB4
+TIM3	PWM Generation CH2	TIM3_CH2	PA7
+TIM4	External Clock Mode 1	TIM4_VS_ControllerModeClock	VP_TIM4_VS_ControllerModeClock
+TIM4	ITR0	TIM4_VS_ClockSourceITR	VP_TIM4_VS_ClockSourceITR
+TIM5	Encoder Mode	TIM5_CH1	PA0-WKUP
+TIM5	Encoder Mode	TIM5_CH2	PA1
+USART1	Asynchronous	USART1_RX	PA10
+USART1	Asynchronous	USART1_TX	PA9
+USART2	Asynchronous	USART2_RX	PA3
+USART2	Asynchronous	USART2_TX	PA2
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+2	PC13-ANTI_TAMP	GPIO_EXTI13	
+3	PC14-OSC32_IN*	RCC_OSC32_IN	
+4	PC15-OSC32_OUT*	RCC_OSC32_OUT	
+5	PH0 - OSC_IN*	RCC_OSC_IN	
+6	PH1 - OSC_OUT*	RCC_OSC_OUT	
+14	PA0-WKUP	TIM5_CH1	ENCL_CH1[TIM5_CH1]
+15	PA1	TIM5_CH2	ENCL_CH2[TIM5_CH2]
+16	PA2	USART2_TX	
+17	PA3	USART2_RX	
+21	PA5	GPIO_Output	MOTL_DIR[PA5]
+22	PA6	GPIO_Output	MOTR_DIR[PA6]
+23	PA7	TIM3_CH2	PWM_MOTR[TIM3_CH2]
+39	PC8	GPIO_EXTI8	MPU_INT
+40	PC9	GPIO_Output	MPU_POWER
+42	PA9	USART1_TX	BLUETOOTH_TX[USART1_TX]
+43	PA10	USART1_RX	BLUETOOTH_RX[USART1_RX]
+46	PA13*	SYS_JTMS-SWDIO	
+49	PA14*	SYS_JTCK-SWCLK	
+50	PA15	TIM2_CH1	ENCR_CH1[TIM2_CH1]
+55	PB3	TIM2_CH2	ENCR_CH2[TIM2_CH2]
+56	PB4	TIM3_CH1	PWM_MOTL[TIM3_CH1]
+61	PB8	I2C1_SCL	
+62	PB9	I2C1_SDA	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : CubeBot
+Project Folder : C:\Users\joel\Documents\electronique\AtollicTRUESTUDIO_workspace\CubeBot
+Toolchain / IDE : TrueSTUDIO
+Firmware Package Name and Version : STM32Cube FW_F4 V1.16.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : Yes
+Backup previously generated files when re-generating : Yes
+Delete previously generated files when not re-generated : No
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+

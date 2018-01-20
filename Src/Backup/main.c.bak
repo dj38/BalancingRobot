@@ -1,0 +1,361 @@
+/**
+  ******************************************************************************
+  * File Name          : main.c
+  * Description        : Main program body
+  ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
+  *
+  * COPYRIGHT(c) 2017 STMicroelectronics
+  *
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
+  *
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  *
+  ******************************************************************************
+  */
+/* Includes ------------------------------------------------------------------*/
+#include "main.h"
+#include "stm32f4xx_hal.h"
+#include "i2c.h"
+#include "tim.h"
+#include "usart.h"
+#include "gpio.h"
+
+/* USER CODE BEGIN Includes */
+#include "SerialBuffer.h"
+#include "MotorWithEncoder.h"
+#include "MPU6050.h"
+#include "Timer.h"
+
+#include <string>
+using namespace std;
+
+/* USER CODE END Includes */
+
+/* Private variables ---------------------------------------------------------*/
+
+/* USER CODE BEGIN PV */
+/* Private variables ---------------------------------------------------------*/
+//I2C_HandleTypeDef hi2c1;
+
+//UART_HandleTypeDef huart1;
+//UART_HandleTypeDef huart2;
+
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+
+/* USER CODE BEGIN PFP */
+/* Private function prototypes -----------------------------------------------*/
+
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
+SerialBuffer serialUSB(&huart2,"USB") ;
+SerialBuffer serialHC06(&huart1,"bluetooth") ;
+uint8_t rxHC06_buff[1];
+uint8_t rxUSB_buff[1];
+/* USER CODE END 0 */
+uint32_t counterrr;
+
+int main(void)
+{
+
+  /* USER CODE BEGIN 1 */
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration----------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_USART1_UART_Init();
+  MX_USART2_UART_Init();
+  MX_I2C1_Init();
+  MX_TIM3_Init();
+  MX_TIM5_Init();
+  MX_TIM2_Init();
+  MX_TIM1_Init();
+  MX_TIM4_Init();
+
+  /* USER CODE BEGIN 2 */
+  // creation of alias on HAL handles to make code more readable
+  // Timers
+  TIM_HandleTypeDef &htim3_PWM=htim3;
+  TIM_HandleTypeDef &htim1_timebaseLSB=htim1;
+  TIM_HandleTypeDef &htim4_timebaseMSB=htim4;
+  TIM_HandleTypeDef &htim2_encoderRight=htim2;
+  TIM_HandleTypeDef &htim5_encoderLeft=htim5;
+  // UART
+  UART_HandleTypeDef &huart1_hc06=huart1;
+  UART_HandleTypeDef &huart2_usb=huart2;
+
+  MotorWithEncoder motR(&htim2_encoderRight,&htim3_PWM,TIM_CHANNEL_PWM_MOTR,MOTR_DIR_GPIO_Port,MOTR_DIR_Pin);
+  MotorWithEncoder motL(&htim5_encoderLeft ,&htim3_PWM,TIM_CHANNEL_PWM_MOTL,MOTL_DIR_GPIO_Port,MOTL_DIR_Pin);
+
+  HAL_GPIO_WritePin(MPU_POWER_GPIO_Port,MPU_POWER_Pin,GPIO_PIN_SET);
+  HAL_Delay(500);
+  MPU6050 mpu6050(&hi2c1,MPU_INT_GPIO_Port,MPU_INT_Pin,400000,&serialUSB);
+  mpu6050.fullInitMPU6050();
+
+  TIM_initPrescaler(&htim1_timebaseLSB,1000000);
+  HAL_TIM_Base_Start_IT(&htim4_timebaseMSB);
+  HAL_TIM_Base_Start_IT(&htim1_timebaseLSB);
+
+//  serialHC06.write("Hello World\n");
+  serialUSB << "Hello World\n";
+  HAL_UART_Receive_IT(&huart1_hc06,rxHC06_buff,1);
+  HAL_UART_Receive_IT(&huart2_usb,rxUSB_buff,1);
+
+  //HAL_UART_Receive_IT(&huart1,rx_buff,1);
+  /* USER CODE END 2 */
+
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
+  string *rxBuf=serialUSB.rxBuffer();
+
+  /*
+  motR.setMotorPower(1.25);
+  motR.setMotorPower(-0.25);
+  motR.setMotorPolarity(Motor::MOTOR_BACKWARD);
+  motR.setMotorPower(0.25);
+  motR.setMotorPower(0);
+
+  motL.setMotorPower(0.25);
+  motL.setMotorPower(-0.25);
+  motL.setMotorPolarity(Motor::MOTOR_BACKWARD);
+  motL.setMotorPower(0.25);
+  motL.setMotorPower(0);
+  */
+
+  serialUSB << "Hello World\n\r";
+  uint32_t timer;
+  float power=0;
+  Timer::initHandlers(&htim4_timebaseMSB,&htim1_timebaseLSB);
+  Timer tim;
+  tim.start();
+//  Timer tim();
+  Timer tim5s;
+  //tim1s.setTimeOut(1000000);
+  //tim5s.setTimeOut(5000000);
+  while (1)
+  {
+
+	  //motR.pwmFreq(freq);
+	  //motL.pwmFreq(freq);
+  /* USER CODE END WHILE */
+
+  /* USER CODE BEGIN 3 */
+	  //rxBuf=serialUSB.rxBuffer();
+	  /*if(!rxBuf->empty()) {
+		  serialUSB.write(*rxBuf);
+		  rxBuf->clear();
+	  }*/
+	  //power+=0.1;
+	  //uint32_t myTime=tim.read_us();
+
+	  for (int i=0;i<1000000;i++) {
+		  uint32_t myTime=tim.read_us();
+		  //serialUSB << "t:" << myTime << "\n\r";
+	  }
+//	  serialUSB << "My time : " << tim.read_us() << "\n\r";
+//	  serialUSB << "Systime : " <<  1000*HAL_GetTick() << "\n\r";
+//	  serialUSB << "delta t : " <<  1000*HAL_GetTick()-myTime << "\n\r\n\r";
+	  //serialUSB << "sysTime (us) : " << myTime << "\n\r";
+	  /*
+	  if (tim1s.repeatedTimeoutCheck()) {
+		  uint32_t myTime=tim.read_us();
+		  serialUSB << "My time : " << myTime << "\n\r";
+	  }
+	  if (tim5s.repeatedTimeoutCheck()) {
+		  tim.reset();
+	  }
+	  */
+
+	  serialUSB << "counter " << counterrr << "\n\r";
+	  serialUSB << "mytime " << tim.read_us() << "\n\r";
+	  //serialUSB << "1. My time : " << tim.read_us() << "\n\r";
+	  //HAL_Delay(999);
+/*
+	  motR.setMotorPower(power);
+	  motL.setMotorPower(power);
+	  serialUSB << "power : " << power << "\n\r" ;
+	  HAL_Delay(1000);
+	  motR.pushNewEncoder(timer);
+	  motL.pushNewEncoder(timer);
+	  float speedR=motR.getSpeed();
+	  float speedL=motL.getSpeed();
+	  serialUSB << "speed : " << (speedR+speedL)/2 << "\n\r" ;
+*/
+  }
+  /* USER CODE END 3 */
+
+}
+
+/** System Clock Configuration
+*/
+void SystemClock_Config(void)
+{
+
+  RCC_OscInitTypeDef RCC_OscInitStruct;
+  RCC_ClkInitTypeDef RCC_ClkInitStruct;
+
+    /**Configure the main internal regulator output voltage 
+    */
+  __HAL_RCC_PWR_CLK_ENABLE();
+
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
+
+    /**Initializes the CPU, AHB and APB busses clocks 
+    */
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 100;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 4;
+  if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    __Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Initializes the CPU, AHB and APB busses clocks 
+    */
+  RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
+                              |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
+  RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  {
+    __Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Configure the Systick interrupt time 
+    */
+  HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+
+    /**Configure the Systick 
+    */
+  HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
+
+  /* SysTick_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+}
+
+/* USER CODE BEGIN 4 */
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+//	if (htim->Instance == TIM1) {TIM1UpdateItFlag=1;};
+}
+
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance==USART1) // USART2=USB, USART1=HC06
+		serialHC06.RxCpltCallback();
+	else if(huart->Instance==USART2) // USART2=USB, USART1=HC06
+		serialUSB.RxCpltCallback();
+}
+
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart) {
+	__NOP();
+}
+
+
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart)
+{
+	if(huart->Instance==USART1) // USART2=USB, USART1=HC06
+		serialHC06.TxCpltCallback();
+	else if(huart->Instance==USART2) // USART2=USB, USART1=HC06
+		serialUSB.TxCpltCallback();
+}
+
+/* USER CODE END 4 */
+
+/**
+  * @brief  This function is executed in case of error occurrence.
+  * @param  None
+  * @retval None
+  */
+void __Error_Handler(char * file, int line)
+{
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  while(1) 
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */ 
+}
+
+#ifdef USE_FULL_ASSERT
+
+/**
+   * @brief Reports the name of the source file and the source line number
+   * where the assert_param error has occurred.
+   * @param file: pointer to the source file name
+   * @param line: assert_param error line source number
+   * @retval None
+   */
+void assert_failed(uint8_t* file, uint32_t line)
+{
+  /* USER CODE BEGIN 6 */
+  /* User can add his own implementation to report the file name and line number,
+    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+  /* USER CODE END 6 */
+
+}
+
+#endif
+
+/**
+  * @}
+  */ 
+
+/**
+  * @}
+*/ 
+
+/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

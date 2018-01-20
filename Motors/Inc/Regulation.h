@@ -13,7 +13,7 @@ public:
         speed
     };
     typedef struct {
-        float P,I,D,target,measure;
+        float target,measure;
     } PID_t;
 
     Regulation(float angleP, float angleI, float angleD, float speedP, float speedI, float speedD, float angleOffset=0.0, regulMode_e regulMode=angle, float controlAngleLimit=15);
@@ -35,16 +35,17 @@ public:
     float getRightMotorPWM(); 
     float getAngleOffset() const { return m_angleOffset; }
 	regulMode_e getRegulMode() const { return m_regulMode; }
-	float getTargetSpeed() const { return m_targetSpeed; }
-	float getTargetAngle() const { return m_targetAngle; }
-	float getMeasuredAngle() const { return m_measuredAngle; }
-	float getMeasuredSpeed() const { return m_measuredSpeed; }
+	float getTargetSpeed() const { return m_speed.target; }
+	float getTargetAngle() const { return m_angle.target; }
+	float getMeasuredAngle() const { return m_angle.measure; }
+	float getMeasuredSpeed() const { return m_speed.measure; }
 	float getControlAngleLimit() const { return m_controlAngleLimit; }
 
 private:
     bool  checkRobotIsVertical();   // returns true if robot "standing state" (standing or horizontal) has changed
     PID   m_pidAngle;           // PID object to handle Angle regulation
     PID   m_pidSpeed;           // PID object to handle Speed regulation
+//    PID   m_pidTheta;           // PID object to handle Theta regulation (robot direction)
     PID_t m_speed;              // PID variables for angle and speed
     PID_t m_angle;              // PID variables for angle and speed
     float m_angleOffset;        // robot angle when it is vertical (~steady state)
@@ -57,7 +58,5 @@ private:
     float m_joystickSpeedGain, m_joystickAngleGain, m_joystickRotationGain; // gain applied on joystick x,y to calculate target speed/angle/rotation
     float m_leftMotorPWM, m_rightMotorPWM; // calculated PWM to be applied on left/right motors
     float m_joystickX,m_joystickY; // joystick input values on x/y axis. Range is [-1;1]
-    float m_measuredAngle,m_targetAngle; // tbc vs m_pidAngle usage
-    float m_measuredSpeed,m_targetSpeed; // tbc vs m_pidSpeed usage
 };
 #endif /* REGULATION_H_ */

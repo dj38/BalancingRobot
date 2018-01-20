@@ -19,10 +19,10 @@ Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, f
     m_pidSpeed.setOutputLimits(m_angleOffset-m_controlAngleLimit,m_angleOffset+m_controlAngleLimit);
     m_pidSpeed.reset();
     m_rightMotorPWM=m_leftMotorPWM=0;
-    m_targetAngle=m_targetSpeed=0;
-   	m_measuredAngle=-90;
+    m_angle.target=m_speed.target=0;
+   	m_angle.measure=-90;
    	m_joystickY=m_joystickX=0;
-   	m_measuredSpeed=0;
+   	m_speed.measure=0;
    	m_joystickRotationGain=1;
    ///// ToDo check initialization of following attributes
    	m_controlSpeedLimit=0;
@@ -34,25 +34,25 @@ Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, f
 // now is time in us
 void Regulation::update(int now,float measuredAngle, float measuredSpeed)
 {
-    m_measuredAngle=measuredAngle;
-    m_measuredSpeed=measuredSpeed;
+    m_angle.measure=measuredAngle;
+    m_speed.measure=measuredSpeed;
     if(checkRobotIsVertical()) {
         m_pidAngle.reset();
         m_pidSpeed.reset();
         setJoyStickValue(0,0);
     }
     if(m_regulMode==angle) {
-        m_targetAngle=m_angleOffset+m_joystickY*m_joystickAngleGain;
+        m_angle.target=m_angleOffset+m_joystickY*m_joystickAngleGain;
     }
     if(m_regulMode==speed) {
-        m_targetSpeed=m_joystickY*m_joystickSpeedGain;
-        m_pidSpeed.setSetPoint(m_targetSpeed);
-        m_pidSpeed.setProcessValue(m_measuredSpeed);
-        m_targetAngle=-m_pidSpeed.compute(now);
-        //m_targetAngle=m_pidSpeed.compute(now);
+        m_speed.target=m_joystickY*m_joystickSpeedGain;
+        m_pidSpeed.setSetPoint(m_speed.target);
+        m_pidSpeed.setProcessValue(m_speed.measure);
+        m_angle.target=-m_pidSpeed.compute(now);
+        //m_angle.target=m_pidSpeed.compute(now);
     }
-    m_pidAngle.setSetPoint(m_targetAngle);
-    m_pidAngle.setProcessValue(m_measuredAngle);
+    m_pidAngle.setSetPoint(m_angle.target);
+    m_pidAngle.setProcessValue(m_angle.measure);
     float pwm=m_pidAngle.compute(now)*m_motorsON*m_robotStanding;
 
     float deltaPwm=m_joystickRotationGain*m_joystickX;
@@ -97,13 +97,13 @@ bool  Regulation::checkRobotIsVertical()
 {
     bool stateChanged=false;
     if (m_robotStanding) {
-        float angleVSVertical=m_measuredAngle-m_angleOffset;
+        float angleVSVertical=m_angle.measure-m_angleOffset;
         if ((angleVSVertical<-15.0f)||(angleVSVertical>15.0f)) {
             m_robotStanding=false;
             stateChanged=true;
         }
     } else {
-        float measuredAngleVSTarget=m_measuredAngle-m_angleOffset;
+        float measuredAngleVSTarget=m_angle.measure-m_angleOffset;
         if ((measuredAngleVSTarget>-0.5f)&&(measuredAngleVSTarget<0.5f)) {
             m_robotStanding=true;
             stateChanged=true;

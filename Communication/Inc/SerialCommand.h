@@ -11,6 +11,8 @@ public:
         badCommand,
         setSpeedRegulMode,
         setAngleRegulMode,
+		setAzimutRegulMode,
+		unsetAzimutRegulMode,
         calibrateAccelerometer,
         calibrateMotors,
         sendPIDValues,
@@ -20,6 +22,9 @@ public:
         setAnglePIDValueP,
         setAnglePIDValueI,
         setAnglePIDValueD,
+        setAzimutPIDValueP,
+        setAzimutPIDValueI,
+        setAzimutPIDValueD,
         setAngleOffset,
         setSpeedPIDValueP,
         setSpeedPIDValueI,
@@ -32,7 +37,8 @@ public:
         setJoystickXY,
         setJoystickY,
         setJoystickX,
-        setTiltControlXY
+        setTiltControlXY,
+		turnByAngle
  };
     
     SerialCommand(std::string in);

@@ -17,6 +17,12 @@ void SerialCommand::parseStringForCommand(string in)
     if(in.compare(0,3,"SSP")==0) {m_command=setSpeedPIDValueP; return;}
     if(in.compare(0,3,"SSI")==0) {m_command=setSpeedPIDValueI; return;}
     if(in.compare(0,3,"SSD")==0) {m_command=setSpeedPIDValueD; return;}
+    if(in.compare(0,3,"SAP")==0) {m_command=setAzimutPIDValueP; return;}
+    if(in.compare(0,3,"SAI")==0) {m_command=setAzimutPIDValueI; return;}
+    if(in.compare(0,3,"SAD")==0) {m_command=setAzimutPIDValueD; return;}
+    if(in.compare(0,3,"SAR")==0) {m_command=setAzimutRegulMode; return;}
+    if(in.compare(0,3,"UAR")==0) {m_command=unsetAzimutRegulMode; return;}
+    if(in.compare(0,3,"TBA")==0) {m_command=turnByAngle; return;}
     if(in.compare(0,2,"RS")==0) {m_command=setSpeedRegulMode; return;} // "START/STOP" pressed on INFO tab, or enter/leave tab
     if(in.compare(0,2,"RB")==0) {m_command=setAngleRegulMode; return;} // "START/STOP" pressed on INFO tab, or enter/leave tab
     if(in.compare(0,2,"IS")==0) {m_command=NOP; return;} // "START/STOP" pressed on GRAPH tab, or enter/leave tab
@@ -78,6 +84,9 @@ string SerialCommand::getStringCommand()
         case setAnglePIDValueP: return("setAnglePIDValueP");
         case setAnglePIDValueI: return("setAnglePIDValueI");
         case setAnglePIDValueD: return("setAnglePIDValueD");
+        case setAzimutPIDValueP: return("setAzimutPIDValueP");
+        case setAzimutPIDValueI: return("setAzimutPIDValueI");
+        case setAzimutPIDValueD: return("setAzimutPIDValueD");
         case setAngleOffset: return("setAngleOffset");
         case setSpeedPIDValueP: return("setSpeedPIDValueP");
         case setSpeedPIDValueI: return("setSpeedPIDValueI");
@@ -89,7 +98,11 @@ string SerialCommand::getStringCommand()
         case setBackToSpot: return("setBackToSpot");
         case setJoystickXY: return("setJoystickXY");
         case setJoystickY: return("setJoystickY");
+        case setJoystickX: return("setJoystickX");
         case setTiltControlXY: return("setTiltControlXY");
+        case turnByAngle: return("turnByAngle");
+        case setAzimutRegulMode: return("setAzimutRegulMode");
+        case unsetAzimutRegulMode: return("unsetAzimutRegulMode");
     }
     return("undefCommand");
 }

@@ -38,7 +38,8 @@ public:
         setJoystickY,
         setJoystickX,
         setTiltControlXY,
-		turnByAngle
+		turnByAngle,
+		turnToAngle
  };
     
     SerialCommand(std::string in);

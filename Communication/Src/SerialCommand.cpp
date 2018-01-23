@@ -23,6 +23,7 @@ void SerialCommand::parseStringForCommand(string in)
     if(in.compare(0,3,"SAR")==0) {m_command=setAzimutRegulMode; return;}
     if(in.compare(0,3,"UAR")==0) {m_command=unsetAzimutRegulMode; return;}
     if(in.compare(0,3,"TBA")==0) {m_command=turnByAngle; return;}
+    if(in.compare(0,3,"TTA")==0) {m_command=turnToAngle; return;}
     if(in.compare(0,2,"RS")==0) {m_command=setSpeedRegulMode; return;} // "START/STOP" pressed on INFO tab, or enter/leave tab
     if(in.compare(0,2,"RB")==0) {m_command=setAngleRegulMode; return;} // "START/STOP" pressed on INFO tab, or enter/leave tab
     if(in.compare(0,2,"IS")==0) {m_command=NOP; return;} // "START/STOP" pressed on GRAPH tab, or enter/leave tab
@@ -101,6 +102,7 @@ string SerialCommand::getStringCommand()
         case setJoystickX: return("setJoystickX");
         case setTiltControlXY: return("setTiltControlXY");
         case turnByAngle: return("turnByAngle");
+        case turnToAngle: return("turnToAngle");
         case setAzimutRegulMode: return("setAzimutRegulMode");
         case unsetAzimutRegulMode: return("unsetAzimutRegulMode");
     }

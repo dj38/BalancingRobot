@@ -6,9 +6,9 @@
  */
 
 #include "SerialBuffer.h"
-#include <sstream>
+//#include <sstream>
 //#include <limits>
-#include <iomanip>
+//#include <iomanip>
 
 SerialBuffer::SerialBuffer(UART_HandleTypeDef *huart,std::string name) :
 	m_huart(huart), m_name(name), m_ongoingTransmit(false) {
@@ -98,12 +98,15 @@ SerialBuffer& operator<<(SerialBuffer & serial,std::string const& str) {
 }
 
 SerialBuffer& operator<<(SerialBuffer & serial,float const& flt){
-	std::ostringstream buffer(std::ostringstream::out);
+/*	std::ostringstream buffer(std::ostringstream::out);
 	buffer.setf(std::ios_base::fixed | std::ios_base::scientific,std::ios_base::floatfield);
 	buffer << std::setprecision(4);
 	buffer << flt;
-	std::string str=buffer.str();
-	serial.write(str);
+	std::string str=buffer.str();*/
+//	float f = 1.123456789;
+	char c[50]; //size of the number
+	sprintf(c, "%g", flt);
+	serial.write(c);
 	return(serial);
 }
 

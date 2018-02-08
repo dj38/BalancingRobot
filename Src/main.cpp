@@ -151,6 +151,12 @@ int main(void)
 		HAL_Delay(1000);
 		mpuStatus=mpu6050.fullInitMPU6050();
 	} while (mpuStatus!=MPU6050::OK);
+	serialUSB << "Display float : "<< 12.1320000000000f << " : eof\n";
+	/*float f = 1.123456789;
+	char c[50]; //size of the number
+	sprintf(c, "%g", f);
+	std::string myStr=c;
+	serialUSB << "Display float 2 : "<< myStr << "\n";*/
 
 	/* Control
 	Angle PID : P=3.97, I=0.211, D=0.021
@@ -186,23 +192,24 @@ int main(void)
 
 	regul.setAngleOffset(1.1);
 
-	float myLog [4][1000];
-	uint16_t logIndex=0;
+	//float myLog [4][1000];
+	//uint16_t logIndex=0;
 
 	while (1)
 	{
 		HAL_Delay(100);
-		for (int16_t i = 32; i < 126; ++i) {
+		/*for (int16_t i = 32; i < 126; ++i) {
 			serialUSB.write((uint16_t)(i));
 			serialUSB << "\n";
 			HAL_Delay(2);
 		}
-		while (1);
+		while (1);*/
 		if(mpu6050.update()) // if new data are available from mpu6050, update regul
 		{
 			motors.computeSpeed();
 			regul.update(tim.read_us(),mpu6050.pitch(),motors.getSpeed());
 			motors.setPWM(regul.getLeftMotorPWM(),regul.getRightMotorPWM());
+			/*
 			if((tim.read()>10) && (logIndex<1000)) {
 				myLog[0][logIndex]=tim.read();
 				myLog[1][logIndex]=regul.getMeasuredAngle();
@@ -210,9 +217,9 @@ int main(void)
 				myLog[3][logIndex]=regul.getRightMotorPWM();
 				//myLog[3][logIndex]=(regul.getLeftMotorPWM()+regul.getRightMotorPWM())/2;
 				logIndex++;
-			}
+			}*/
 		};
-
+/*
 		if((999<logIndex)&&(logIndex<2000)){
 			if(serialHC06.getTxBufferSize()==0){
 				uint16_t tmpIndex=logIndex-1000;
@@ -224,7 +231,7 @@ int main(void)
 				logIndex++;
 			}
 		}
-
+*/
 		// check if new command have been received from bluetooth link
 		SerialCommand command=serialHC06.getSerialCommand();
 		std::vector<float> values=command.getValues();

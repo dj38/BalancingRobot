@@ -1,8 +1,8 @@
 #include "Regulation.h"
 #include <math.h>
 
-//Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, float speedI, float speedD, float angleOffset, regulMode_e regulMode, float controlAngleLimit) : m_pidAngle(angleP,angleI,angleD), m_pidSpeed(speedP,speedI,speedD)
-Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, float speedI, float speedD, float angleOffset, regulMode_e regulMode, float controlAngleLimit) : m_pidAngle(angleP,angleI,angleD), m_pidSpeed(speedP,speedI,speedD)
+Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, float speedI, float speedD, float angleOffset, regulMode_e regulMode, float controlAngleLimit) :
+	m_pidAngle(angleP,angleI,angleD), m_pidSpeed(speedP,speedI,speedD), m_pidAzimut(0,0,0)
 {
     m_controlAngleLimit=controlAngleLimit;
     m_angleOffset=angleOffset;
@@ -18,6 +18,11 @@ Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, f
     m_pidSpeed.setInputLimits(-1.5,1.5);
     m_pidSpeed.setOutputLimits(m_angleOffset-m_controlAngleLimit,m_angleOffset+m_controlAngleLimit);
     m_pidSpeed.reset();
+    m_pidAzimut.setBias(0.0);
+    m_pidAzimut.setInputLimits(-360,720); // TODO input limits to be defined (How to handle modulo on regulation?...)
+    m_pidAzimut.setOutputLimits(-1,1);
+    m_pidAzimut.reset();
+
     m_rightMotorPWM=m_leftMotorPWM=0;
     m_angle.target=m_speed.target=0;
    	m_angle.measure=-90;
@@ -29,13 +34,16 @@ Regulation::Regulation(float angleP, float angleI, float angleD, float speedP, f
    	m_turningLimit=0;
     m_joystickAngleGain=1;
     m_joystickSpeedGain=0.25;
+    m_azimutPIDEnable=false;
+    m_joystickAzimutSpeedGain=360; // in degrees/s
 }
 
 // now is time in us
-void Regulation::update(int now,float measuredAngle, float measuredSpeed)
+void Regulation::update(int now,float measuredAngle, float measuredSpeed, float measuredAzimut)
 {
     m_angle.measure=measuredAngle;
     m_speed.measure=measuredSpeed;
+    m_azimut.measure=measuredAzimut;
     if(checkRobotIsVertical()) {
         m_pidAngle.reset();
         m_pidSpeed.reset();
@@ -49,13 +57,29 @@ void Regulation::update(int now,float measuredAngle, float measuredSpeed)
         m_pidSpeed.setSetPoint(m_speed.target);
         m_pidSpeed.setProcessValue(m_speed.measure);
         m_angle.target=-m_pidSpeed.compute(now);
-        //m_angle.target=m_pidSpeed.compute(now);
     }
     m_pidAngle.setSetPoint(m_angle.target);
     m_pidAngle.setProcessValue(m_angle.measure);
     float pwm=m_pidAngle.compute(now)*m_motorsON*m_robotStanding;
 
-    float deltaPwm=m_joystickRotationGain*m_joystickX;
+    float deltaPwm=0;
+    if(m_azimutPIDEnable){
+    	// reminder now and previous time are given in us...
+    	turnBy(m_joystickAzimutSpeedGain*m_joystickX*float(now-m_pidAzimut.getPreviousTime())/1000000.0f);
+    	// apply offset on target and measure such that measure remains in [0; 360]
+    	if(m_azimut.measure>=360.0) {
+    		m_azimut.measure-=360.0;
+    		m_azimut.target-=360.0;
+    	} else if(m_azimut.measure<0.0) {
+    		m_azimut.measure+=360.0;
+    		m_azimut.target+=360.0;
+    	}
+    	m_pidAzimut.setSetPoint(m_azimut.target);
+    	m_pidAzimut.setProcessValue(m_azimut.measure);
+    	deltaPwm=m_pidAzimut.compute(now);
+    } else {
+        deltaPwm=m_joystickRotationGain*m_joystickX;
+    }
     float pwmMargin=1.0-fabsf(pwm); //checks are done on deltaPWM to ensure stability then rotation
     if (deltaPwm < -pwmMargin) {
     	deltaPwm = -pwmMargin;
@@ -65,6 +89,21 @@ void Regulation::update(int now,float measuredAngle, float measuredSpeed)
     m_leftMotorPWM=pwm+deltaPwm;
     m_rightMotorPWM=pwm-deltaPwm;
 }
+
+void Regulation::turnBy(float rotation)
+{
+	m_azimut.target+=rotation;
+}
+
+void Regulation::enableAzimutRegulation(bool azimutRegulEnable)
+{
+    if(azimutRegulEnable && !(m_azimutPIDEnable)) {
+    	m_azimut.target=m_azimut.measure; // when azimut regulation mode is enabled target is set to measure
+    	m_pidAzimut.reset();
+    }
+	m_azimutPIDEnable=azimutRegulEnable;
+}
+
 
 void Regulation::setAngleOffset(float angleOffset)
 {

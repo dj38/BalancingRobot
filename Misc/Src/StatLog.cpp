@@ -1,8 +1,6 @@
 #include "StatLog.h"
 #include <string>
-#include <sstream>
 #include <cstring>
-#include <iostream>
 #include "math.h"
 
 using namespace std;

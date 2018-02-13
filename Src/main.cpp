@@ -131,22 +131,7 @@ int main(void)
 	serialHC06.startRX(); // TODO : clean once serialBuffer constructor issue will be fixed
 	serialUSB.startRX();
 	serialUSB << "Hello World" << __ENDL;
-	serialUSB << "Essai de float : " << 12.345001e-12f << __ENDL;
 	serialHC06 << "Hello bluetooth world" << __ENDL;
-
-	if(1) {
-		SerialBuffer usbCopy(serialUSB);
-		BTCom btComCopy(serialHC06);
-		SerialBuffer btComCopy2(serialHC06);
-		BTCom usbCopy2(serialUSB);
-		btComCopy2 << "Hello BTComCopy2 \n";
-		btComCopy2=serialUSB;
-		btComCopy2=serialHC06;
-		btComCopy=serialUSB;
-		btComCopy=serialHC06;
-		usbCopy << "Hello usbCopy \n\r";
-		btComCopy2 << "Hello BTComCopy2 affecte par serialUSB \n";
-	}
 
 	//Motors and associated encoders initialization
 	Motor motR(&htim3_PWM,TIM_CHANNEL_PWM_MOTR,MOTR_DIR_GPIO_Port,MOTR_DIR_Pin);

@@ -1,24 +1,20 @@
 #include "BTCom.h"
 
-#ifdef BT_Debug
-Serial BTdebug(USBTX, USBRX); // tx, rx
-#endif
-//Serial blue(TX_Pin_BlueTooth,RX_Pin_BlueTooth);          // TX, RX
-
 using namespace std;
 
-BTCom::BTCom(UART_HandleTypeDef *huart,std::string name) : SerialBuffer(huart,name)
+BTCom::BTCom(UART_HandleTypeDef *huart) : SerialBuffer(huart)
 {
-#ifdef BT_Debug
-    BTdebug.baud(BAUDRATE_Debug);
-#endif
+}
+
+BTCom::BTCom(const SerialBuffer& buffer) : SerialBuffer(buffer) {
 }
 
 void BTCom::RxCpltCallback() {
 	SerialBuffer::RxCpltCallback();
-    if (*m_rxBuffer.rbegin()==';') {
-        m_commands.push(SerialCommand(m_rxBuffer));
-        m_rxBuffer.clear();
+	std::string* rxBuffer=this->rxBuffer();
+    if (*(rxBuffer->rbegin())==';') {
+        m_commands.push(SerialCommand(*rxBuffer));
+        rxBuffer->clear();
     }
 }
 
@@ -26,24 +22,15 @@ void BTCom::sendBTData(const string message)
 {
     *this << message;
 }
-/*
-string BTCom::getBuffer()
-{
-    return(m_rxBuffer);
-}*/
 
 bool BTCom::convertBuffer2Commands()
 {
-    if (m_rxBuffer.length()>0) {
-        size_t pos = m_rxBuffer.find(";");
-//    if ((pos!=string::npos) && (m_rxBuffer[pos] == ';')) {
-#ifdef BT_Debug
-        BTdebug.printf("buffer is  %s\n",m_rxBuffer.c_str());
-        BTdebug.printf("character is %s \n",m_rxBuffer[pos]);
-#endif
+	std::string* rxBuffer=this->rxBuffer();
+	if (rxBuffer->length()>0) {
+        size_t pos = rxBuffer->find(";");
         if (pos!=string::npos) {
-            string stringCommand=m_rxBuffer.substr(0,pos+1); // extract string command
-            m_rxBuffer.erase(0,pos+1);             // remove trailing ;
+            string stringCommand=rxBuffer->substr(0,pos+1); // extract string command
+            rxBuffer->erase(0,pos+1);             // remove trailing ;
             m_commands.push(SerialCommand(stringCommand));
             return(true);
         }
@@ -53,11 +40,6 @@ bool BTCom::convertBuffer2Commands()
 
 SerialCommand BTCom::getSerialCommand()
 {
-#ifdef BT_Debug
-//       BTdebug.printf("buffer is  %s\n",m_rxBuffer.c_str());
-//      BTdebug.printf("buffer is  \n");
-#endif
-//   while(convertBuffer2Commands()); // append any new command in buffer to m_commands
     if(m_commands.empty()) {
         return(SerialCommand("")); // returns NOP command
     }
@@ -107,9 +89,6 @@ bool BTCom::setBaudRate(int baudRate)
             break;
         }
         default: {
-#ifdef BT_Debug
-            BTdebug.printf("%d is not a valid baudrate\n",baudRate);
-#endif
             return(false);
         }
     }

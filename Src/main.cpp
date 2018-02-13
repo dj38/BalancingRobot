@@ -54,7 +54,6 @@
 #include "Regulation.h"
 
 #include <string>
-//using namespace std;
 
 /* USER CODE END Includes */
 
@@ -74,8 +73,8 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-SerialBuffer serialUSB(&huart2,"USB") ;
-BTCom serialHC06(&huart1,"bluetooth") ;
+SerialBuffer serialUSB(&huart2) ;
+BTCom serialHC06(&huart1) ;
 
 /* USER CODE END 0 */
 
@@ -131,8 +130,23 @@ int main(void)
 	UART_HandleTypeDef &huart2_usb=huart2;
 	serialHC06.startRX(); // TODO : clean once serialBuffer constructor issue will be fixed
 	serialUSB.startRX();
-	//  serialUSB << "Hello World" << __ENDL;
+	serialUSB << "Hello World" << __ENDL;
+	serialUSB << "Essai de float : " << 12.345001e-12f << __ENDL;
 	serialHC06 << "Hello bluetooth world" << __ENDL;
+
+	if(1) {
+		SerialBuffer usbCopy(serialUSB);
+		BTCom btComCopy(serialHC06);
+		SerialBuffer btComCopy2(serialHC06);
+		BTCom usbCopy2(serialUSB);
+		btComCopy2 << "Hello BTComCopy2 \n";
+		btComCopy2=serialUSB;
+		btComCopy2=serialHC06;
+		btComCopy=serialUSB;
+		btComCopy=serialHC06;
+		usbCopy << "Hello usbCopy \n\r";
+		btComCopy2 << "Hello BTComCopy2 affecte par serialUSB \n";
+	}
 
 	//Motors and associated encoders initialization
 	Motor motR(&htim3_PWM,TIM_CHANNEL_PWM_MOTR,MOTR_DIR_GPIO_Port,MOTR_DIR_Pin);
@@ -151,12 +165,6 @@ int main(void)
 		HAL_Delay(1000);
 		mpuStatus=mpu6050.fullInitMPU6050();
 	} while (mpuStatus!=MPU6050::OK);
-	serialUSB << "Display float : "<< 12.1320000000000f << " : eof\n";
-	/*float f = 1.123456789;
-	char c[50]; //size of the number
-	sprintf(c, "%g", f);
-	std::string myStr=c;
-	serialUSB << "Display float 2 : "<< myStr << "\n";*/
 
 	/* Control
 	Angle PID : P=3.97, I=0.211, D=0.021

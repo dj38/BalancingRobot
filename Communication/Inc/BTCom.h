@@ -22,20 +22,16 @@ class BTCom : public SerialBuffer
 {
 public:
 
-    BTCom(UART_HandleTypeDef *huart,std::string name="");
+    BTCom(UART_HandleTypeDef *huart);
+    BTCom(const SerialBuffer&);
     bool setBaudRate(int baudRate);
     void sendBTData(const std::string message);
-    //std::string getBuffer();
     SerialCommand getSerialCommand();
     int getCommandsStackSize();
     void RxCpltCallback();
 
 private:
     bool convertBuffer2Commands(); // parse buffer to check if new commands have been received, returns true when new commands are found
-    std::string m_name;
-    std::string m_serialInBuffer;
-    //Serial m_blue;
-    //SerialBuffer *m_serialBuffer;
     void SerialInCallback();
     std::queue<SerialCommand> m_commands;
 };

@@ -15,7 +15,9 @@
 
 class SerialBuffer {
 public:
-	SerialBuffer(UART_HandleTypeDef *huart,std::string name="");
+	SerialBuffer(UART_HandleTypeDef *huart);
+	SerialBuffer(const SerialBuffer&);
+	SerialBuffer& operator=(const SerialBuffer&);
 	void write(uint32_t uint32);
 	void write(uint16_t uint16);
 	void write(uint8_t uint8);
@@ -23,20 +25,15 @@ public:
 	virtual ~SerialBuffer();
 	void TxCpltCallback();
 	virtual void RxCpltCallback();
-	std::string *rxBuffer();
 	void startRX();
 	uint16_t getTxBufferSize();
 
 protected:
-	std::string m_rxBuffer;
-	uint8_t m_halRxBuffer[1];
-	UART_HandleTypeDef *m_huart;
+	std::string *rxBuffer();
 
 private:
-	std::queue<uint8_t> m_pendingTxBuffer;
-	std::string m_name;
-	bool m_ongoingTransmit;
-	uint8_t m_halTxBuffer[1];
+	struct Srep; // representation of class
+	Srep* rep;
 	void transmit();
 };
 

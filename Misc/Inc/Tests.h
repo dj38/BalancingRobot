@@ -15,7 +15,7 @@
 namespace Tests {
 
 	void setObjectsRefs(Motor *motR,Motor *motL,Encoder *motREnc,Encoder *motLEnc,Motors *motors,MPU6050 *mpu,
-			SerialBuffer *serialUSB,BTCom *serialHC06);
+			IOSerialStream *serialUSB,BTCom *serialHC06);
 	void procTestMotorLinearity();
 
 }  // namespace Tests

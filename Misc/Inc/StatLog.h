@@ -1,7 +1,7 @@
 #ifndef STATLOG_H
 #define STATLOG_H
+#include <IOSerialStream.h>
 #include <string>
-#include "SerialBuffer.h"
 
 class StatLog
 {
@@ -13,7 +13,7 @@ public:
     float average() const;
     void addValue(float val);
     void reset();
-    void print(SerialBuffer * flux, bool printName=true);
+    void print(IOSerialStream * flux, bool printName=true);
     void setLogMinMax(bool log=true);
     void setLogAverage(bool log=true);
     void setLogStdDev(bool log=true);

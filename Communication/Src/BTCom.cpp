@@ -2,15 +2,15 @@
 
 using namespace std;
 
-BTCom::BTCom(UART_HandleTypeDef *huart) : SerialBuffer(huart)
+BTCom::BTCom(UART_HandleTypeDef *huart) : IOSerialStream(huart)
 {
 }
 
-BTCom::BTCom(const SerialBuffer& buffer) : SerialBuffer(buffer) {
+BTCom::BTCom(const IOSerialStream& buffer) : IOSerialStream(buffer) {
 }
 
 void BTCom::RxCpltCallback() {
-	SerialBuffer::RxCpltCallback();
+	IOSerialStream::RxCpltCallback();
 	std::string* rxBuffer=this->rxBuffer();
     if (*(rxBuffer->rbegin())==';') {
         m_commands.push(SerialCommand(*rxBuffer));

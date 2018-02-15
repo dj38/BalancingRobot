@@ -69,7 +69,7 @@ void StatLog::reset()
     m_sumSquare=0;
 }
 
-void StatLog::print(SerialBuffer * flux, bool printName)
+void StatLog::print(IOSerialStream * flux, bool printName)
 {
     if(flux!=0) {
         /*stringstream ss;

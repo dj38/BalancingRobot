@@ -36,6 +36,7 @@
  ******************************************************************************
  */
 /* Includes ------------------------------------------------------------------*/
+#include <IOSerialStream.h>
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "i2c.h"
@@ -44,7 +45,6 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN Includes */
-#include "SerialBuffer.h"
 #include "Motors.h"
 #include "MPU6050.h"
 #include "Timer.h"
@@ -73,7 +73,7 @@ void SystemClock_Config(void);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-SerialBuffer serialUSB(&huart2) ;
+IOSerialStream serialUSB(&huart2) ;
 BTCom serialHC06(&huart1) ;
 
 /* USER CODE END 0 */
@@ -128,7 +128,7 @@ int main(void)
 	// UART
 	UART_HandleTypeDef &huart1_hc06=huart1;
 	UART_HandleTypeDef &huart2_usb=huart2;
-	serialHC06.startRX(); // TODO : clean once serialBuffer constructor issue will be fixed
+	serialHC06.startRX(); // TODO : clean once IOSerialStream constructor issue will be fixed
 	serialUSB.startRX();
 	serialUSB << "Hello World" << __ENDL;
 	serialHC06 << "Hello bluetooth world" << __ENDL;

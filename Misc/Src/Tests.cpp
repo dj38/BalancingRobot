@@ -15,7 +15,7 @@ namespace Tests {
 	Encoder *m_motLEnc;
 	Motors *m_motors;
 	MPU6050 *m_mpu;
-	SerialBuffer *m_serialUSB;
+	IOSerialStream *m_serialUSB;
 	BTCom *m_serialHC06;
 
 	void procTestMotorUnit(float pwmFreq,float force,TimeOut * encTimeOut);
@@ -24,7 +24,7 @@ namespace Tests {
 
 
 void Tests::setObjectsRefs(Motor *motR,Motor *motL,Encoder *motREnc,Encoder *motLEnc,Motors *motors,MPU6050 *mpu,
-		SerialBuffer *serialUSB,BTCom *serialHC06) {
+		IOSerialStream *serialUSB,BTCom *serialHC06) {
 	m_motR=motR;
 	m_motL=motL;
 	m_motREnc=motREnc;

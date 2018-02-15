@@ -13,7 +13,7 @@ StatLog *StatLogCollection::appendStatLog(std::string name)
     return(newStatLog);
 }
 
-void StatLogCollection::print(SerialBuffer * flux, bool printName)
+void StatLogCollection::print(IOSerialStream * flux, bool printName)
 {
     for(uint i(0); i<m_list.size(); ++i)
         m_list[i]->print(flux,printName);

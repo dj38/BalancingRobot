@@ -47,7 +47,7 @@ public:
      *  @param serialDebugRef pointer to a Serial object for debug purpose
      */
 //    MPU6050(PinName sda=I2C_SDA, PinName scl=I2C_SCL,int frequency=400000,Beep *beepRef=0,Serial *serialDebugRef=0); //constructor
-    MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency=400000,SerialBuffer *serialDebugRef=0); //constructor
+    MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency=400000,IOSerialStream *serialDebugRef=0); //constructor
     ~MPU6050(); //destructor
 
     initStatus fullInitMPU6050();
@@ -66,7 +66,7 @@ private:
 
     Beep    *beep;*/
     I2C_HandleTypeDef	*m_hi2c;
-    SerialBuffer  *m_serialDebug;
+    IOSerialStream  *m_serialDebug;
     TimeOut m_timerKalmanStartup;
     Timer   m_timer;
 

@@ -16,14 +16,14 @@
 #include <string>       // std::string
 #include <queue>        // std::queue is a FIFO list
 #include "SerialCommand.h"
-#include "SerialBuffer.h"
+#include "IOSerialStream.h"
 
-class BTCom : public SerialBuffer
+class BTCom : public IOSerialStream
 {
 public:
 
     BTCom(UART_HandleTypeDef *huart);
-    BTCom(const SerialBuffer&);
+    BTCom(const IOSerialStream&);
     bool setBaudRate(int baudRate);
     void sendBTData(const std::string message);
     SerialCommand getSerialCommand();

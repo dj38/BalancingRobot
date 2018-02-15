@@ -151,7 +151,7 @@ const int   MPU6050::tMinAcqInterval_us = 980 ;  // Defines the min time interva
 //====== Set of useful function to access acceleratio, gyroscope, and temperature data
 //===================================================================================================================
 
-MPU6050::MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency,SerialBuffer *serialDebugRef) : m_hi2c(hi2c), m_serialDebug(serialDebugRef){ // : I2C(sda,scl) //constructor
+MPU6050::MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency,IOSerialStream *serialDebugRef) : m_hi2c(hi2c), m_serialDebug(serialDebugRef){ // : I2C(sda,scl) //constructor
 	//serialDebug=serialDebugRef;
     //beep=beepRef;
     //m_StatLogPitch = m_StatLogList.appendStatLog("Pitch");

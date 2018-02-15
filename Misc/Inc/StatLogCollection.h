@@ -2,7 +2,7 @@
 #define STATLOGCOLLECTION_H
 
 //#include "StatLog.h"
-#include "SerialBuffer.h"
+#include <IOSerialStream.h>
 #include <vector>
 
 class StatLogCollection
@@ -10,7 +10,7 @@ class StatLogCollection
 public:
     ~StatLogCollection();
 //    StatLog *appendStatLog(std::string name = "");
-    void print(SerialBuffer * flux, bool printName=true);
+    void print(IOSerialStream * flux, bool printName=true);
     void resetAllStatLog();
     void setLogMinMax(bool log=true);
     void setLogAverage(bool log=true);

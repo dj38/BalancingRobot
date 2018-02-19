@@ -118,16 +118,35 @@ std::string *IOSerialStream::rxBuffer() {
 	return(&rep->m_rxBuffer);
 }
 
-IOSerialStream& operator<<(IOSerialStream & serial,std::string const& str) {
-	serial.write(str);
-	return(serial);
+IOSerialStream& IOSerialStream::operator<<(std::string const& str) {
+	write(str);
+	return(*this);
 }
 
-IOSerialStream& operator<<(IOSerialStream & serial,float const& flt){
+IOSerialStream& IOSerialStream::operator<<(float const& flt){
 	char c[50]; //size of the number
 	sprintf(c, "%g", flt);
-	serial.write(c);
-	return(serial);
+	write(c);
+	return(*this);
 }
 
+IOStreamList& IOStreamList::operator<<(std::string const& str) {
+	for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
+		**it<< str;
+	return(*this);
+}
 
+IOStreamList& IOStreamList::operator<<(float const& flt) {
+	for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
+		**it<< flt;
+	return(*this);
+}
+
+IOStreamList& IOStreamList::attachStream(IOStream& stream) {
+	m_streamList.push_back(&stream);
+	return(*this);
+}
+
+IOStreamList::~IOStreamList() {
+
+}

@@ -8,12 +8,32 @@
 #define IOSerialStream_H_
 
 #include <queue>
+#include <vector>
 #include <string>
 #include "stm32f4xx_hal.h"
 
 #define __ENDL "\n\r"
 
-class IOSerialStream {
+class IOStream {
+public:
+	virtual IOStream& operator<<(std::string const& str)=0;
+	virtual IOStream& operator<<(float const& flt)=0;
+	virtual ~IOStream() {};
+protected:
+	virtual std::string *rxBuffer()=0;
+};
+
+class IOStreamList {
+public:
+	IOStreamList& operator<<(std::string const& str);
+	IOStreamList& operator<<(float const& flt);
+	IOStreamList& attachStream(IOStream&);
+	~IOStreamList();
+private:
+	std::vector<IOStream*> m_streamList;
+};
+
+class IOSerialStream: public IOStream {
 public:
 	IOSerialStream(UART_HandleTypeDef *huart);
 	IOSerialStream(const IOSerialStream&);
@@ -28,6 +48,9 @@ public:
 	void startRX();
 	uint16_t getTxBufferSize();
 
+	IOSerialStream& operator<<(std::string const& str);
+	IOSerialStream& operator<<(float const& flt);
+
 protected:
 	std::string *rxBuffer();
 
@@ -36,8 +59,5 @@ private:
 	Srep* rep;
 	void transmit();
 };
-
-IOSerialStream& operator<<(IOSerialStream & serial,std::string const& str);
-IOSerialStream& operator<<(IOSerialStream & serial,float const& flt);
 
 #endif /* IOSerialStream_H_ */

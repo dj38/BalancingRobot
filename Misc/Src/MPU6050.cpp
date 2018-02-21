@@ -151,8 +151,7 @@ const int   MPU6050::tMinAcqInterval_us = 980 ;  // Defines the min time interva
 //====== Set of useful function to access acceleratio, gyroscope, and temperature data
 //===================================================================================================================
 
-MPU6050::MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency,IOSerialStream *serialDebugRef) : m_hi2c(hi2c), m_serialDebug(serialDebugRef){ // : I2C(sda,scl) //constructor
-	//serialDebug=serialDebugRef;
+MPU6050::MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency) : IOStreamList(), m_hi2c(hi2c) { // : I2C(sda,scl) //constructor
     //beep=beepRef;
     //m_StatLogPitch = m_StatLogList.appendStatLog("Pitch");
     //m_StatLogYaw   = m_StatLogList.appendStatLog("Yaw");
@@ -186,8 +185,6 @@ MPU6050::~MPU6050() //destructor
 {
     /*if(beep!=0)
         delete beep;*/
-    if(m_serialDebug!=0)
-        delete m_serialDebug;
     //delete i2c;
 }
 
@@ -744,17 +741,17 @@ MPU6050::initStatus MPU6050::fullInitMPU6050()
     }
     switch (status) {
         case OK : {
-            if(m_serialDebug!=0) *m_serialDebug << "MPU initialized for active data mode....\n\r";
+        	*this << "MPU initialized for active data mode....\n\r";
             //if(beep!=0) beep->repeatedBeep(440.0,0.01,0.1,2);
             break;
         }
         case failSelfTest : {
-            if(m_serialDebug!=0) *m_serialDebug << "ERROR : MPU failed self test\n\r";
+        	*this << "ERROR : MPU failed self test\n\r";
             //if(beep!=0) beep->repeatedBeep(880.0,0.01,.2,10);
             break;
         }
         case noConn : {
-            if(m_serialDebug!=0) *m_serialDebug << "ERROR : failed to connect to MPU\n\r";
+        	*this << "ERROR : failed to connect to MPU\n\r";
             //if(beep!=0) beep->repeatedBeep(880.0,0.01,0.2,5);
             break;
         }

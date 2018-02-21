@@ -10,6 +10,7 @@
 #include "math.h"
 //#include "Beep.h"
 #include "StatLogCollection.h"
+#include "IOSerialStream.h"
 #include "Timer.h"
 
 /** A class that allows to calculate yaw, pitch roll using an MPU6050 device
@@ -30,7 +31,7 @@
  * }
  * @endcode
  */
-class MPU6050 {
+class MPU6050 : public IOStreamList {
 public:
     enum initStatus {
         OK = 0,
@@ -44,10 +45,8 @@ public:
      *  @param scl I2C clock line pin
      *  @param frequency I2C bus frequency
      *  @param beepRef pointer to a beeper object
-     *  @param serialDebugRef pointer to a Serial object for debug purpose
      */
-//    MPU6050(PinName sda=I2C_SDA, PinName scl=I2C_SCL,int frequency=400000,Beep *beepRef=0,Serial *serialDebugRef=0); //constructor
-    MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency=400000,IOSerialStream *serialDebugRef=0); //constructor
+    MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency=400000); //constructor
     ~MPU6050(); //destructor
 
     initStatus fullInitMPU6050();
@@ -66,7 +65,6 @@ private:
 
     Beep    *beep;*/
     I2C_HandleTypeDef	*m_hi2c;
-    IOSerialStream  *m_serialDebug;
     TimeOut m_timerKalmanStartup;
     Timer   m_timer;
 

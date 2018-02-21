@@ -1,6 +1,7 @@
 #include "StatLog.h"
 #include <string>
 #include <cstring>
+#include <sstream>
 #include "math.h"
 
 using namespace std;
@@ -69,21 +70,20 @@ void StatLog::reset()
     m_sumSquare=0;
 }
 
-void StatLog::print(IOSerialStream * flux, bool printName)
+void StatLog::print(IOStreamList& flux, bool printName)
 {
-    if(flux!=0) {
-        /*stringstream ss;
-    	if(printName)    ss << m_name;
-        if(m_logAverage) ss << average() << "\t";
-        if(m_logMinMax)  ss << m_min << "\t";
-        if(m_logMinMax)  ss << m_max << "\t";
-        if(m_logStdDev)  ss << stdDev() << "\t";
-        if(m_logCount)   ss << m_count;
-        ss << "\n";
-        string strPrint=ss.str();*/
-    	//string strPrint=to_str(average());
-        //flux->write(strPrint);
-    }
+	stringstream ss;
+	if(printName)    ss << m_name;
+	if(m_logAverage) ss << average() << "\t";
+	if(m_logMinMax)  ss << m_min << "\t";
+	if(m_logMinMax)  ss << m_max << "\t";
+	if(m_logStdDev)  ss << stdDev() << "\t";
+	if(m_logCount)   ss << m_count;
+	ss << "\n";
+	string strPrint=ss.str();
+	//string strPrint=to_str(average());
+	//flux->write(strPrint);
+	flux << strPrint;
 }
 
 

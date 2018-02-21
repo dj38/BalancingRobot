@@ -13,7 +13,7 @@ public:
     float average() const;
     void addValue(float val);
     void reset();
-    void print(IOSerialStream * flux, bool printName=true);
+    void print(IOStreamList& flux, bool printName=true);
     void setLogMinMax(bool log=true);
     void setLogAverage(bool log=true);
     void setLogStdDev(bool log=true);

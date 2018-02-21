@@ -76,33 +76,6 @@ uint16_t IOSerialStream::getTxBufferSize() {
 	return(rep->m_pendingTxBuffer.size());
 }
 
-void IOSerialStream::write(uint32_t uint32) {  //TODO could be rewritten with templates ??
-	uint8_t buf[4];
-	buf[3]=(uint8_t)(uint32&0xff);
-	buf[2]=(uint8_t)((uint32>>8)&0xff);
-	buf[1]=(uint8_t)((uint32>>16)&0xff);
-	buf[0]=(uint8_t)((uint32>>24)&0xff);
-	for (int i = 0; i < 4; ++i) { // send MSB first
-		rep->m_pendingTxBuffer.push(buf[i]);
-	}
-	transmit();
-}
-
-void IOSerialStream::write(uint16_t uint16) {
-	uint8_t buf[2];
-	buf[1]=(uint8_t)(uint16&0xff);
-	buf[0]=(uint8_t)((uint16>>8)&0xff);
-	for (int i = 0; i < 2; ++i) { // send MSB first
-		rep->m_pendingTxBuffer.push(buf[i]);
-	}
-	transmit();
-}
-
-void IOSerialStream::write(uint8_t uint8) {
-	rep->m_pendingTxBuffer.push(uint8);
-	transmit();
-}
-
 void IOSerialStream::transmit() {
 	if(rep->m_ongoingTransmit) return;
 	if(rep->m_pendingTxBuffer.empty())

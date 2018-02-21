@@ -130,18 +130,6 @@ IOSerialStream& IOSerialStream::operator<<(float const& flt){
 	return(*this);
 }
 
-IOStreamList& IOStreamList::operator<<(std::string const& str) {
-	for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
-		**it<< str;
-	return(*this);
-}
-
-IOStreamList& IOStreamList::operator<<(float const& flt) {
-	for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
-		**it<< flt;
-	return(*this);
-}
-
 IOStreamList& IOStreamList::attachStream(IOStream& stream) {
 	m_streamList.push_back(&stream);
 	return(*this);

@@ -25,10 +25,13 @@ protected:
 
 class IOStreamList {
 public:
-	IOStreamList& operator<<(std::string const& str);
-	IOStreamList& operator<<(float const& flt);
 	IOStreamList& attachStream(IOStream&);
 	~IOStreamList();
+	template <class T> IOStreamList& operator<<(T const& message) {
+		for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
+			**it<< message;
+		return(*this);
+	}
 private:
 	std::vector<IOStream*> m_streamList;
 };
@@ -38,10 +41,6 @@ public:
 	IOSerialStream(UART_HandleTypeDef *huart);
 	IOSerialStream(const IOSerialStream&);
 	IOSerialStream& operator=(const IOSerialStream&);
-	void write(uint32_t uint32);
-	void write(uint16_t uint16);
-	void write(uint8_t uint8);
-	void write(std::string const& str);
 	virtual ~IOSerialStream();
 	void TxCpltCallback();
 	virtual void RxCpltCallback();
@@ -58,6 +57,10 @@ private:
 	struct Srep; // representation of class
 	Srep* rep;
 	void transmit();
+	void write(uint32_t uint32);
+	void write(uint16_t uint16);
+	void write(uint8_t uint8);
+	void write(std::string const& str);
 };
 
 #endif /* IOSerialStream_H_ */

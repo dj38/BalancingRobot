@@ -24,16 +24,20 @@ protected:
 };
 
 class IOStreamList {
+private:
+	std::vector<IOStream*> m_streamList;
+	bool m_streamEnable;
 public:
+	IOStreamList() : m_streamEnable(true) {};
 	IOStreamList& attachStream(IOStream&);
 	~IOStreamList();
 	template <class T> IOStreamList& operator<<(T const& message) {
-		for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
-			**it<< message;
+		if(m_streamEnable)
+			for(std::vector<IOStream*>::iterator it=m_streamList.begin();it!=m_streamList.end();++it)
+				**it<< message;
 		return(*this);
-	}
-private:
-	std::vector<IOStream*> m_streamList;
+	};
+	inline void enableStream(bool enable) {m_streamEnable=enable;};
 };
 
 class IOSerialStream: public IOStream {

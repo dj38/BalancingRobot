@@ -130,8 +130,10 @@ int main(void)
 	UART_HandleTypeDef &huart2_usb=huart2;
 	serialHC06.startRX(); // TODO : clean once IOSerialStream constructor issue will be fixed
 	serialUSB.startRX();
-	serialUSB << "Hello World" << __ENDL;
-	serialHC06 << "Hello bluetooth world" << __ENDL;
+
+	IOStreamList serials;
+	serials.attachStream(serialUSB).attachStream(serialHC06);
+	serials << "Hello World" << __ENDL;
 
 	//Motors and associated encoders initialization
 	Motor motR(&htim3_PWM,TIM_CHANNEL_PWM_MOTR,MOTR_DIR_GPIO_Port,MOTR_DIR_Pin);
@@ -141,7 +143,8 @@ int main(void)
 	Motors motors(&motL,&motR,&motLEnc,&motREnc);
 
 	//Gyro/Accel initialization
-	MPU6050 mpu6050(&hi2c1,MPU_INT_GPIO_Port,MPU_INT_Pin,400000,&serialUSB);
+	MPU6050 mpu6050(&hi2c1,MPU_INT_GPIO_Port,MPU_INT_Pin,400000);
+	mpu6050.attachStream(serialHC06).attachStream(serialUSB);
 	MPU6050::initStatus mpuStatus;
 	do {
 		HAL_GPIO_WritePin(MPU_POWER_GPIO_Port,MPU_POWER_Pin,GPIO_PIN_RESET);
@@ -179,7 +182,7 @@ int main(void)
 	Timer tim;
 	tim.start();
 	TimeOut timeout;
-	timeout.setTimeOut(1000000*100);
+	timeout.setTimeOut(1000000*2);
 	regul.setMotorsState(true);
 	int displayIteration=0;
 
@@ -191,12 +194,6 @@ int main(void)
 	while (1)
 	{
 		HAL_Delay(100);
-		/*for (int16_t i = 32; i < 126; ++i) {
-			serialUSB.write((uint16_t)(i));
-			serialUSB << "\n";
-			HAL_Delay(2);
-		}
-		while (1);*/
 		if(mpu6050.update()) // if new data are available from mpu6050, update regul
 		{
 			motors.computeSpeed();

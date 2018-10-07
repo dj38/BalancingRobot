@@ -52,6 +52,7 @@
 #include "Encoder.h"
 #include "Tests.h"
 #include "Regulation.h"
+#include "EEvar.h"
 
 #include <string>
 //using namespace std;
@@ -134,6 +135,13 @@ int main(void)
 	//  serialUSB << "Hello World" << __ENDL;
 	serialHC06 << "Hello bluetooth world" << __ENDL;
 
+
+    // EEPROM emulation initialization
+	HAL_FLASH_Unlock();    /* Unlock the Flash Program Erase controller */
+	//if(EE_Format()!=HAL_OK) Error_Handler();  /* To format EEPROM uncomment this line*/
+	if(EE_Init()!=HAL_OK) Error_Handler(); 	  /* EEPROM Init */
+	HAL_FLASH_Lock();     /* RElock once EEPROM initialization is finalized */
+
 	//Motors and associated encoders initialization
 	Motor motR(&htim3_PWM,TIM_CHANNEL_PWM_MOTR,MOTR_DIR_GPIO_Port,MOTR_DIR_Pin);
 	Motor motL(&htim3_PWM,TIM_CHANNEL_PWM_MOTL,MOTL_DIR_GPIO_Port,MOTL_DIR_Pin);
@@ -154,13 +162,29 @@ int main(void)
 
 	/* Control
 	Angle PID : P=3.97, I=0.211, D=0.021
-	AngleOffset = -2.2°
+	AngleOffset = -2.2Â°
 	Speed PID : P=0.42, I=0.189, D=1e-7
-	=> P=0.84 apres nbre pulse/rev *2 (la vitesse est au passage divisée par 2) ?
+	=> P=0.84 apres nbre pulse/rev *2 (la vitesse est au passage divisÃ©e par 2) ?
 	Regulation mode : speed
-	AngleLimits=+- 15°
+	AngleLimits=+- 15Â°
+
 	*/
-	Regulation regul(3.97, 0.211, 0.021, 0.3, 0.7, 0.005, -2.22 , Regulation::speed, 35);
+	HAL_FLASH_Unlock();
+	EEvar<float> anglePID_P(3.97,0);
+	EEvar<float> anglePID_I(0.211,1);
+	EEvar<float> anglePID_D(0.021,2);
+	EEvar<float> angleOffset(1.1,3);
+	EEvar<float> speedPID_P(0.42,4);
+	EEvar<float> speedPID_I(0.189,5);
+	EEvar<float> speedPID_D(1e-7,6);
+	EEvar<float> controlAngleLimit(35,7);
+	// TODO use an EEVar to store Regulation_mode ???
+	HAL_FLASH_Lock();
+
+	//Regulation regul(3.97, 0.211, 0.021, 0.3, 0.7, 0.005, 1.1 , Regulation::speed, 35);
+	Regulation regul(anglePID_P.getVal(),anglePID_I.getVal(),anglePID_D.getVal(),
+			speedPID_P.getVal(),speedPID_I.getVal(),speedPID_D.getVal(),
+			angleOffset.getVal(), Regulation::speed, controlAngleLimit.getVal() );
 	//regul.setJoystickAngleGain(1);
 	regul.setJoystickSpeedGain(0.25);
 	regul.setJoystickAngleGain(0.35);
@@ -184,25 +208,17 @@ int main(void)
 	regul.setMotorsState(true);
 	int displayIteration=0;
 
-	regul.setAngleOffset(1.1);
-
 	float myLog [4][1000];
 	uint16_t logIndex=0;
 
 	while (1)
 	{
-		HAL_Delay(100);
-		for (int16_t i = 32; i < 126; ++i) {
-			serialUSB.write((uint16_t)(i));
-			serialUSB << "\n";
-			HAL_Delay(2);
-		}
-		while (1);
 		if(mpu6050.update()) // if new data are available from mpu6050, update regul
 		{
 			motors.computeSpeed();
 			regul.update(tim.read_us(),mpu6050.pitch(),motors.getSpeed());
 			motors.setPWM(regul.getLeftMotorPWM(),regul.getRightMotorPWM());
+			/*
 			if((tim.read()>10) && (logIndex<1000)) {
 				myLog[0][logIndex]=tim.read();
 				myLog[1][logIndex]=regul.getMeasuredAngle();
@@ -210,9 +226,9 @@ int main(void)
 				myLog[3][logIndex]=regul.getRightMotorPWM();
 				//myLog[3][logIndex]=(regul.getLeftMotorPWM()+regul.getRightMotorPWM())/2;
 				logIndex++;
-			}
+			}*/
 		};
-
+/*
 		if((999<logIndex)&&(logIndex<2000)){
 			if(serialHC06.getTxBufferSize()==0){
 				uint16_t tmpIndex=logIndex-1000;
@@ -224,19 +240,37 @@ int main(void)
 				logIndex++;
 			}
 		}
-
+*/
 		// check if new command have been received from bluetooth link
 		SerialCommand command=serialHC06.getSerialCommand();
 		std::vector<float> values=command.getValues();
 		switch(command.getCommand()) {
 		case SerialCommand::NOP:
 			break;
+		case SerialCommand::saveDataToEEPROM:
+			HAL_FLASH_Unlock(); // necessary to allow writing
+			anglePID_P.write(); // Todo operation on a list of EEVar?
+			anglePID_I.write();
+			anglePID_D.write();
+			angleOffset.write();
+			speedPID_P.write();
+			speedPID_I.write();
+			speedPID_D.write();
+			controlAngleLimit.write();
+			HAL_FLASH_Lock();
+			break;
 		case SerialCommand::setAnglePIDValueP:
-			regul.getPIDAngle()->setPTuning(values.at(0)); break;
+			anglePID_P.setRamVal(values.at(0));
+			regul.getPIDAngle()->setPTuning(anglePID_P.getVal());
+			break;
 		case SerialCommand::setAnglePIDValueI:
-			regul.getPIDAngle()->setITuning(values.at(0)); break;
+			anglePID_I.setRamVal(values.at(0));
+			regul.getPIDAngle()->setITuning(anglePID_I.getVal());
+			break;
 		case SerialCommand::setAnglePIDValueD:
-			regul.getPIDAngle()->setDTuning(values.at(0)); break;
+			anglePID_D.setRamVal(values.at(0));
+			regul.getPIDAngle()->setDTuning(anglePID_D.getVal());
+			break;
 		case SerialCommand::setJoystickXY:
 			regul.setJoyStickValue(values.at(0),values.at(1)); break;
 		case SerialCommand::setJoystickY:
@@ -244,19 +278,35 @@ int main(void)
 		case SerialCommand::setJoystickX:
 			regul.setJoyStickXValue(values.at(0)); break;
 		case SerialCommand::setAngleOffset:
-			regul.setAngleOffset(values.at(0)); break;
+			angleOffset.setRamVal(values.at(0));
+			regul.setAngleOffset(angleOffset.getVal());
+			break;
 		case SerialCommand::setSpeedRegulMode:
 			regul.setRegulationMode(Regulation::speed); break;
 		case SerialCommand::setAngleRegulMode:
 			regul.setRegulationMode(Regulation::angle); break;
 		case SerialCommand::setSpeedPIDValueP:
-			regul.getPIDSpeed()->setPTuning(values.at(0)); break;
+			speedPID_P.setRamVal(values.at(0));
+			regul.getPIDSpeed()->setPTuning(speedPID_P.getVal());
+			break;
 		case SerialCommand::setSpeedPIDValueI:
-			regul.getPIDSpeed()->setITuning(values.at(0)); break;
+			speedPID_I.setRamVal(values.at(0));
+			regul.getPIDSpeed()->setITuning(speedPID_I.getVal());
+			break;
 		case SerialCommand::setSpeedPIDValueD:
-			regul.getPIDSpeed()->setDTuning(values.at(0)); break;
+			speedPID_D.setRamVal(values.at(0));
+			regul.getPIDSpeed()->setDTuning(speedPID_D.getVal());
+			break;
 		case SerialCommand::setControlAngleLimit:
-			regul.setControlAngleLimit(values.at(0)); break;
+			controlAngleLimit.setRamVal(values.at(0));
+			regul.setControlAngleLimit(controlAngleLimit.getVal());
+			break;
+		case SerialCommand::formatEEPROM:
+			HAL_FLASH_Unlock();
+			if(EE_Format()!=HAL_OK) Error_Handler();
+			if(EE_Init()!=HAL_OK) Error_Handler();
+			HAL_FLASH_Lock();
+			break;
 		case SerialCommand::sendPIDValues:
 			serialHC06 << "AnglePID settings :" << "\n";
 			serialHC06 << "P : " << regul.getPIDAngle()->getPParam() << "\n";
@@ -308,7 +358,7 @@ int main(void)
 			serialHC06 << "target/meas angle : " << regul.getTargetAngle() << "/" << regul.getMeasuredAngle() << "\n";
 			serialHC06 << "target/meas speed : " << regul.getTargetSpeed() << "/" << regul.getMeasuredSpeed() << "\n";
 			Motors::position_t position=motors.getPosition();
-			serialHC06 << "Position (x/y/theta°) : " << position.x << "/" << position.y << "/" << 180.0/3.141592654*position.theta << "\n";
+			serialHC06 << "Position (x/y/theta) : " << position.x << "/" << position.y << "/" << 180.0/3.141592654*position.theta << "\n";
 
 			/*
             mpu.m_StatLogList.print(&pc,true);

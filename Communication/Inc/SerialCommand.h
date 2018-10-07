@@ -32,7 +32,9 @@ public:
         setJoystickXY,
         setJoystickY,
         setJoystickX,
-        setTiltControlXY
+        setTiltControlXY,
+        saveDataToEEPROM,
+		formatEEPROM
  };
     
     SerialCommand(std::string in);

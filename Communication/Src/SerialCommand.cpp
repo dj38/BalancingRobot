@@ -102,7 +102,6 @@ string SerialCommand::getStringCommand()
         case setJoystickXY: return("setJoystickXY");
         case setJoystickX: return("setJoystickX");
         case setJoystickY: return("setJoystickY");
-        case setJoystickX: return("setJoystickX");
         case setTiltControlXY: return("setTiltControlXY");
         case turnByAngle: return("turnByAngle");
         case turnToAngle: return("turnToAngle");

@@ -12,7 +12,9 @@ SerialCommand::SerialCommand(string in)
 void SerialCommand::parseStringForCommand(string in)
 {
     if(in.compare("")==0)       { m_command=NOP; return;}
-    if(in.compare(0,2,"SJX")==0) {m_command=setJoystickX; return;}
+	if(in.compare(0,3,"FEE")==0) {m_command=formatEEPROM; return;}
+	if(in.compare(0,3,"SDA")==0) {m_command=saveDataToEEPROM; return;}
+	if(in.compare(0,3,"SJX")==0) {m_command=setJoystickX; return;}
     if(in.compare(0,3,"SJY")==0) {m_command=setJoystickY; return;}
     if(in.compare(0,3,"SSP")==0) {m_command=setSpeedPIDValueP; return;}
     if(in.compare(0,3,"SSI")==0) {m_command=setSpeedPIDValueI; return;}
@@ -98,6 +100,7 @@ string SerialCommand::getStringCommand()
         case setTurningLimit: return("setTurningLimit");
         case setBackToSpot: return("setBackToSpot");
         case setJoystickXY: return("setJoystickXY");
+        case setJoystickX: return("setJoystickX");
         case setJoystickY: return("setJoystickY");
         case setJoystickX: return("setJoystickX");
         case setTiltControlXY: return("setTiltControlXY");
@@ -105,6 +108,8 @@ string SerialCommand::getStringCommand()
         case turnToAngle: return("turnToAngle");
         case setAzimutRegulMode: return("setAzimutRegulMode");
         case unsetAzimutRegulMode: return("unsetAzimutRegulMode");
+        case saveDataToEEPROM: return("saveDataToEEPROM");
+        case formatEEPROM: return("formatEEPROM");
     }
     return("undefCommand");
 }

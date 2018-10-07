@@ -39,7 +39,9 @@ public:
         setJoystickX,
         setTiltControlXY,
 		turnByAngle,
-		turnToAngle
+		turnToAngle,
+        saveDataToEEPROM,
+		formatEEPROM
  };
     
     SerialCommand(std::string in);

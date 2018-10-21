@@ -74,17 +74,15 @@ void StatLog::reset()
 void StatLog::print(SerialBuffer * flux, bool printName)
 {
     if(flux!=0) {
-        /*stringstream ss;
-    	if(printName)    ss << m_name;
+        stringstream ss;
+    	if(printName)    ss << m_name << " : ";
         if(m_logAverage) ss << average() << "\t";
         if(m_logMinMax)  ss << m_min << "\t";
         if(m_logMinMax)  ss << m_max << "\t";
         if(m_logStdDev)  ss << stdDev() << "\t";
         if(m_logCount)   ss << m_count;
         ss << "\n";
-        string strPrint=ss.str();*/
-    	//string strPrint=to_str(average());
-        //flux->write(strPrint);
+        flux->write(ss.str());
     }
 }
 

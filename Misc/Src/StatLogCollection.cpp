@@ -1,5 +1,5 @@
 #include "StatLogCollection.h"
-/*
+
 StatLogCollection::~StatLogCollection()
 {
     for(uint i(0); i<m_list.size(); ++i)
@@ -47,4 +47,4 @@ void StatLogCollection::setLogCount(bool log)
     for(uint i(0); i<m_list.size(); ++i)
         m_list[i]->setLogCount(log);
 }
-*/
+

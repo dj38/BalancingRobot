@@ -56,15 +56,16 @@ public:
     float yaw();
     float roll();
     float temperature(); // Temperature in degrees Centigrade
-    //StatLogCollection m_StatLogList;
+    StatLogCollection m_StatLogList;
 	MPU6050();
 
 private:
-/*    StatLog * m_StatLogPitch;
+    StatLog * m_StatLogPitch;
     StatLog * m_StatLogYaw;
     StatLog * m_StatLogRoll;
+    StatLog * m_StatLogTimer;
 
-    Beep    *beep;*/
+    //Beep    *beep;
     I2C_HandleTypeDef	*m_hi2c;
     SerialBuffer  *m_serialDebug;
     TimeOut m_timerKalmanStartup;
@@ -151,6 +152,9 @@ private:
     static const float steadyStateZeta; // increase bias drift gain after stabilized
     static const float tStartup;        // startup time needed to stabize kalman filter
     static const int   tMinAcqInterval_us; // Defines the min time (in us) interval between 2 acquisitions (related to MPU6050 max freq)
+
+    GPIO_TypeDef* m_gpioIntPort;
+    uint16_t m_gpioIntPin;
 };
 
 #endif /* MPU6050_H_ */

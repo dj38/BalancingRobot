@@ -150,7 +150,7 @@ int main(void)
 	Motors motors(&motL,&motR,&motLEnc,&motREnc);
 
 	//Gyro/Accel initialization
-	MPU6050 mpu6050(&hi2c1,MPU_INT_GPIO_Port,MPU_INT_Pin,400000,&serialUSB);
+	MPU6050 mpu6050(&hi2c1,MPU_INT_GPIO_Port,MPU_INT_Pin,400000,&serialHC06);
 	MPU6050::initStatus mpuStatus;
 	do {
 		HAL_GPIO_WritePin(MPU_POWER_GPIO_Port,MPU_POWER_Pin,GPIO_PIN_RESET);
@@ -201,10 +201,11 @@ int main(void)
 	 */
 	/* Tests section END */
 
-	Timer tim;
-	tim.start();
+	Timer globalTimer,loopTimer;
+	loopTimer.start();    // used to measure elapsed time in main forever loop
+	globalTimer.start();  // used to measure global runtime
 	TimeOut timeout;
-	timeout.setTimeOut(1000000*100);
+	timeout.setTimeOut(1000000*2);
 	regul.setMotorsState(true);
 	int displayIteration=0;
 
@@ -213,14 +214,15 @@ int main(void)
 
 	while (1)
 	{
+		loopTimer.reset();
 		if(mpu6050.update()) // if new data are available from mpu6050, update regul
 		{
 			motors.computeSpeed();
-			regul.update(tim.read_us(),mpu6050.pitch(),motors.getSpeed());
+			regul.update(globalTimer.read_us(),mpu6050.pitch(),motors.getSpeed());
 			motors.setPWM(regul.getLeftMotorPWM(),regul.getRightMotorPWM());
 			/*
-			if((tim.read()>10) && (logIndex<1000)) {
-				myLog[0][logIndex]=tim.read();
+			if((globalTimer.read()>10) && (logIndex<1000)) {
+				myLog[0][logIndex]=globalTimer.read();
 				myLog[1][logIndex]=regul.getMeasuredAngle();
 				myLog[2][logIndex]=regul.getMeasuredSpeed();
 				myLog[3][logIndex]=regul.getRightMotorPWM();
@@ -345,27 +347,26 @@ int main(void)
 			serialUSB << ")\n\r";
 			serialHC06 << ")\n";
 		}
+		if(loopTimer.read() < 1e-4) {
+			if(timeout.repeatedTimeoutCheck()) { // display values periodically
+			// /!\ diplay of 1 float variable cost about 120us.
+				displayIteration++;
+				serialHC06  << "runtime : " << globalTimer.read() << "\n";
+				serialHC06 << "Regul : " ;
+				switch(regul.getRegulMode()) {
+					case Regulation::angle: serialHC06 << "angle\n" ; break;
+					case Regulation::speed: serialHC06 << "speed\n" ; break;
+					case Regulation::pos: serialHC06 << "position\n" ; break;
+				}
+				serialHC06 << "target/meas angle : " << regul.getTargetAngle() << "/" << regul.getMeasuredAngle() << "\n";
+				serialHC06 << "target/meas speed : " << regul.getTargetSpeed() << "/" << regul.getMeasuredSpeed() << "\n";
+				Motors::position_t position=motors.getPosition();
+				serialHC06 << "Position (x/y/theta) : " << position.x << "/" << position.y << "/" << 180.0/3.141592654*position.theta << "\n";
 
-		if(timeout.repeatedTimeoutCheck()) { // display values periodically
-			displayIteration++;
-			serialHC06  << "runtime : " << tim.read() << "\n";
-			serialHC06 << "Regul : " ;
-			switch(regul.getRegulMode()) {
-				case Regulation::angle: serialHC06 << "angle\n" ; break;
-				case Regulation::speed: serialHC06 << "speed\n" ; break;
-				case Regulation::pos: serialHC06 << "position\n" ; break;
+				// mpu6050.m_StatLogList.print(&serialHC06,true);
+				// mpu6050.m_StatLogList.resetAllStatLog();
 			}
-			serialHC06 << "target/meas angle : " << regul.getTargetAngle() << "/" << regul.getMeasuredAngle() << "\n";
-			serialHC06 << "target/meas speed : " << regul.getTargetSpeed() << "/" << regul.getMeasuredSpeed() << "\n";
-			Motors::position_t position=motors.getPosition();
-			serialHC06 << "Position (x/y/theta) : " << position.x << "/" << position.y << "/" << 180.0/3.141592654*position.theta << "\n";
-
-			/*
-            mpu.m_StatLogList.print(&pc,true);
-            mpu.m_StatLogList.resetAllStatLog();
-			  */
-		};
-
+		}
 		/* USER CODE END WHILE */
 
 		/* USER CODE BEGIN 3 */

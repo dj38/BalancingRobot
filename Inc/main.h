@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -56,8 +56,6 @@
 #define MOTR_DIR_GPIO_Port GPIOA
 #define PWM_MOTR_Pin GPIO_PIN_7
 #define PWM_MOTR_GPIO_Port GPIOA
-#define MPU_INT_Pin GPIO_PIN_8
-#define MPU_INT_GPIO_Port GPIOC
 #define MPU_POWER_Pin GPIO_PIN_9
 #define MPU_POWER_GPIO_Port GPIOC
 #define BLUETOOTH_TX_Pin GPIO_PIN_9
@@ -70,6 +68,8 @@
 #define ENCR_CH2_GPIO_Port GPIOB
 #define PWM_MOTL_Pin GPIO_PIN_4
 #define PWM_MOTL_GPIO_Port GPIOB
+#define MPU_INT_Pin GPIO_PIN_7
+#define MPU_INT_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 #define TIM_CHANNEL_PWM_MOTR TIM_CHANNEL_1

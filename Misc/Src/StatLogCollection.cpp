@@ -1,5 +1,5 @@
 #include "StatLogCollection.h"
-/*
+
 StatLogCollection::~StatLogCollection()
 {
     for(uint i(0); i<m_list.size(); ++i)
@@ -15,8 +15,11 @@ StatLog *StatLogCollection::appendStatLog(std::string name)
 
 void StatLogCollection::print(IOSerialStream * flux, bool printName)
 {
-    for(uint i(0); i<m_list.size(); ++i)
+    // TODO fix issue in function (due to git merge issues)
+	/*for(uint i(0); i<m_list.size(); ++i)
         m_list[i]->print(flux,printName);
+        */
+
 }
 
 void StatLogCollection::resetAllStatLog()
@@ -47,4 +50,3 @@ void StatLogCollection::setLogCount(bool log)
     for(uint i(0); i<m_list.size(); ++i)
         m_list[i]->setLogCount(log);
 }
-*/

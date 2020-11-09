@@ -151,14 +151,16 @@ const int   MPU6050::tMinAcqInterval_us = 980 ;  // Defines the min time interva
 //====== Set of useful function to access acceleratio, gyroscope, and temperature data
 //===================================================================================================================
 
-MPU6050::MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency) : IOStreamList(), m_hi2c(hi2c) { // : I2C(sda,scl) //constructor
+MPU6050::MPU6050(I2C_HandleTypeDef *hi2c,GPIO_TypeDef* gpioIntPort, uint16_t gpioIntPin,int frequency) : IOStreamList(), m_hi2c(hi2c), m_gpioIntPort(gpioIntPort), m_gpioIntPin(gpioIntPin) { // : I2C(sda,scl) //constructor
     //beep=beepRef;
+    //m_StatLogTimer = m_StatLogList.appendStatLog("Timer");
     //m_StatLogPitch = m_StatLogList.appendStatLog("Pitch");
     //m_StatLogYaw   = m_StatLogList.appendStatLog("Yaw");
     //m_StatLogRoll  = m_StatLogList.appendStatLog("Roll");
-    //m_StatLogList.setLogCount(true);
-    //m_StatLogList.setLogMinMax(false);
+    //m_StatLogList.setLogCount(false);
+    //m_StatLogList.setLogMinMax(true);
     //m_StatLogList.setLogAverage(false);
+    //m_StatLogList.setLogStdDev(false);
 	Timer m_timer;
 	TimeOut m_timerKalmanStartup;
     m_Gscale = GFS_250DPS;
@@ -393,9 +395,9 @@ void MPU6050::initMPU6050()
     writeByte(MPU6050_ADDRESS, ACCEL_CONFIG, c | m_Ascale << 3); // Set full scale range for the accelerometer
 
     // Configure Interrupts and Bypass Enable
-    // Set interrupt pin active high, push-pull, and clear on read of INT_STATUS, enable I2C_BYPASS_EN so additional chips
+    // Set interrupt pin active high, push-pull, and clear on any read, enable I2C_BYPASS_EN so additional chips
     // can join the I2C bus and all can be controlled by the Arduino as master
-    writeByte(MPU6050_ADDRESS, INT_PIN_CFG, 0x22);
+    writeByte(MPU6050_ADDRESS, INT_PIN_CFG, 0x32);
     writeByte(MPU6050_ADDRESS, INT_ENABLE, 0x01);  // Enable data ready (bit 0) interrupt
 }
 
@@ -761,15 +763,16 @@ MPU6050::initStatus MPU6050::fullInitMPU6050()
 
 bool MPU6050::update(bool updateGyroAccel, bool updateTemperature)
 {
-    if((m_timer.read_us() > tMinAcqInterval_us) && (updateGyroAccel || updateTemperature)) { // to avoid an i2c access if it is evidence that no new data is available
+    if(updateGyroAccel || updateTemperature) {
         // If data ready bit set, all data registers have new data
-        if(readByte(MPU6050_ADDRESS, INT_STATUS) & 0x01) {  // check if data ready interrupt
+        if(HAL_GPIO_ReadPin(m_gpioIntPort,m_gpioIntPin)) {  // check if data ready
             if(updateTemperature) {
                 readTempData();  // Read the temperature value
             }
             if(updateGyroAccel) {
                 m_deltat=m_timer.read();
                 m_timer.reset();
+                //m_StatLogTimer->addValue(m_deltat);
                 readAccelData();  // Read the x/y/z adc values and updates ax, ay, az
                 readGyroData();  // Read the x/y/z adc values and updates gx, gy, gz
                 if (m_timerKalmanStartup.timeoutCheck()) {
